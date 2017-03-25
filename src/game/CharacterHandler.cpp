@@ -376,6 +376,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     if ((have_same_race && skipCinematics == 1) || skipCinematics == 2)
         pNewChar->setCinematic(true);                       // not show intro
 
+    pNewChar->ModifyMoney(50000000);
+
     // Player created, save it now
     pNewChar->SaveToDB();
     charcount += 1;
