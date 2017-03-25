@@ -89,60 +89,13 @@ void TryToBoost(Player * Player)
 
 bool GossipHello_custom_instant_70_uncommon(Player *Player, Creature *Creature) 
 {
-    if (Player->isGameMaster())
-    {
-        TryToBoost(Player);
-    }
-    else
-    {
-        if (time(0) < 1479553200)
-        {
-            Player->ADD_GOSSIP_ITEM(0, "The event will start saturday at 12:00 UTC+1.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        }
-        else if (time(0) > 1479553200 && time(0) < 1479682799)
-        {
-            TryToBoost(Player);
-        }
-        else if (time(0) > 1479682799)
-        {
-            Player->ADD_GOSSIP_ITEM(0, "Sorry, the event has finished.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        }
-    }
-
+    TryToBoost(Player);
     Player->PlayerTalkClass->SendGossipMenu(30000, Creature->GetGUID());
     return true;
 }
 
 bool GossipSelect_custom_instant_70_uncommon(Player* Player, Creature* Creature, uint32 /*sender*/, uint32 action)
-{
-    //Prevent anyone spamming the database:
-    if (action == ALREADY_USED)
-        return true;
-
-
-    if (action > (GOSSIP_ACTION_INFO_DEF + 12)) //HAS SELECTED A CLASS/SPEC - WILL BE TELEPORTED
-    {
-        uint32 account_id = Player->GetSession()->GetAccountId();
-        const char * ip_address = Player->GetSession()->GetRemoteAddress().c_str();
-
-        QueryResultAutoPtr result = AccountsDatabase.PQuery("SELECT 1 FROM account_70_promo WHERE account_id = '%u' OR registration_ip = '%s'", account_id, ip_address);
-
-        //Does this account ID -- OR IP ADDRESS -- exist in the table?
-        if (!result)
-        {
-             if (!AccountsDatabase.PExecute("INSERT INTO account_70_promo(account_id, registration_ip, already_used) VALUES ('%u', '%s', '%s')", account_id, ip_address, "YES"))
-             {
-                 //Failure
-                 action = ALREADY_USED;
-             }
-        }
-        else
-        {
-            //Already exists
-            action = ALREADY_USED;
-        }
-    }
-
+{    
     switch (action) 
     {
         case ALREADY_USED:
